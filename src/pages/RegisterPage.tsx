@@ -3,10 +3,55 @@ import image from "../assets/image.jpg";
 import { FaLock, FaUser } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { IoPerson } from "react-icons/io5";
+import { SERVER } from "../constants";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
+type UserType = {
+  email: string;
+  userName: string;
+  password: string;
+  repassword: string;
+};
 
 export default function RegisterPage() {
-  const [selectedRole, setSelectedRole] = useState("");
-  const roles = ["Admin", "HR Manager", "Employee", "Intern"];
+  const navigate = useNavigate();
+  const [user, setUser] = useState<Partial<UserType>>({
+    email: "",
+    password: "",
+    repassword: "",
+    userName: "",
+  });
+
+  const handleSubmit = async () => {
+    console.log(user);
+    user.repassword = undefined;
+    const response = await fetch(`${SERVER}/api/register`, {
+      method: "POSt",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+    if (!response.ok) {
+      const body = await response.json();
+      toast.error(body.message ?? "Failed user creation");
+    } else {
+      toast.success("user created");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.currentTarget;
+
+    setUser((u) => {
+      u[name as keyof UserType] = value;
+      return { ...u };
+    });
+  };
 
   return (
     <div>
@@ -26,6 +71,9 @@ export default function RegisterPage() {
               </span>
               <input
                 type="text"
+                name="userName"
+                value={user.userName}
+                onChange={handleChange}
                 className="w-full rounded-md p-1 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
               />
             </div>
@@ -34,7 +82,10 @@ export default function RegisterPage() {
                 <MdEmail /> Email
               </span>
               <input
-                type="text"
+                type="email"
+                name="email"
+                value={user.email}
+                onChange={handleChange}
                 className="w-full rounded-md p-1 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
               />
             </div>
@@ -44,6 +95,9 @@ export default function RegisterPage() {
               </span>
               <input
                 type="password"
+                name="password"
+                value={user.password}
+                onChange={handleChange}
                 className="w-full rounded-md p-1 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
               />
             </div>
@@ -53,30 +107,18 @@ export default function RegisterPage() {
               </span>
               <input
                 type="password"
+                name="repassword"
+                value={user.repassword}
+                onChange={handleChange}
                 className="w-full rounded-md p-1 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
               />
             </div>
-            {/* Role Selection Dropdown */}
-            {/*<div className="w-full flex flex-col text-2xl text-left gap-1">
-              <span className="text-slate-950 flex items-center gap-2">
-                <IoPerson /> Role
-              </span>
-              <select
-                className="w-full rounded-md p-2 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select a role
-                </option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-            </div>*/}
-            <button className="px-10 py-2 text-2xl rounded-md bg-gradient-to-tr from-purple-600 to-fuchsia-400 hover:from-pink-500 hover:to-fuchsia-600 text-white">
+            <button
+              onClick={() => {
+                handleSubmit();
+              }}
+              className="px-10 py-2 text-2xl rounded-md bg-gradient-to-tr from-purple-600 to-fuchsia-400 hover:from-pink-500 hover:to-fuchsia-600 text-white"
+            >
               Register
             </button>
           </div>

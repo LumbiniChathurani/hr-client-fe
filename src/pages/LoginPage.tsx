@@ -3,12 +3,23 @@ import image from "../assets/image.jpg";
 import { Link } from "react-router-dom";
 import { FaLock } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
+interface User {
+  id: number;
+  email: string;
+  name: string;
+  profile_image: string;
+  role: string;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -24,11 +35,13 @@ export default function LoginPage() {
 
       if (response.ok) {
         setSuccess(data.message);
-        setError("");
-        console.log("Logged in user:", data.user);
-        // You can redirect or save token/user info here
+        toast.success("login success");
+        console.log("Navigating as: ", data.body.userRole);
+        navigate(handleRoute(data.body.userRole));
+        console.log("Logged in user:", data);
       } else {
         setError(data.message);
+        toast.error(data.message ?? "Login failed, check credentials");
         setSuccess("");
       }
     } catch (err) {
@@ -50,7 +63,7 @@ export default function LoginPage() {
                 <MdEmail /> Email
               </span>
               <input
-                type="text"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="rounded-md p-1 border-2 border-gray-300 bg-white text-black outline-none hover:border-purple-400 focus:border-purple-400"
@@ -102,4 +115,21 @@ export default function LoginPage() {
       </section>
     </div>
   );
+}
+
+function handleRoute(userRole: String): string {
+  switch (userRole) {
+    case "ADMIN":
+      return "/dashboard";
+    case "REQRUITER":
+      return "/";
+    case "USER":
+      return "/";
+    case "HRM":
+      return "/dashboard";
+    case "EMPLOYEE":
+      return "/dashboard";
+    default:
+      return "/";
+  }
 }

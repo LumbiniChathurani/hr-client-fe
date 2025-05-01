@@ -10,7 +10,7 @@ function App() {
         <Link to="/login">
           <button className="btn-primary">GoTo Login Page</button>
         </Link>
-        <Link to="/admindashboard">
+        <Link to="/dashboard">
           <button className="btn-primary">GoTo Admin Dashboard</button>
         </Link>
       </div>
