@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import UserFormModal from "./AddEmployee";
-
-type Employee = {
-  id: number;
-  userName: string;
-  department: string;
-  userRole: string;
-};
+import EditEmployeeFormModal from "./EditEmployee";
+import { Employee } from "../types/Employee";
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [search, setSearch] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState(""); // Department filter
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,9 +32,38 @@ const EmployeesPage = () => {
       });
   }, []);
 
-  const filteredEmployees = employees.filter((emp) =>
-    emp.userName.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this employee?"))
+      return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/employees/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete employee");
+      }
+
+      setEmployees((prev) => prev.filter((emp) => emp.id !== id));
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
+
+  const filteredEmployees = employees.filter((emp) => {
+    const matchesName = emp.userName
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesDept =
+      selectedDepartment.trim() === "" ||
+      (emp.department &&
+        emp.department
+          .toLowerCase()
+          .includes(selectedDepartment.trim().toLowerCase()));
+
+    return matchesName && matchesDept;
+  });
 
   return (
     <div className="p-6">
@@ -52,8 +81,14 @@ const EmployeesPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
+        <EditEmployeeFormModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          employeeData={selectedEmployee}
+        />
       </div>
 
+      {/* Search + Filter */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
         <input
           type="text"
@@ -62,14 +97,21 @@ const EmployeesPage = () => {
           onChange={(e) => setSearch(e.target.value)}
           className="px-4 py-2 rounded border bg-white border-gray-300 w-full md:w-1/3 dark:bg-dark-purple-muted dark:text-white"
         />
-        <select className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white">
+        <select
+          value={selectedDepartment}
+          onChange={(e) => setSelectedDepartment(e.target.value)}
+          className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
+        >
           <option value="">All Departments</option>
           <option value="HR">HR</option>
           <option value="Engineering">Engineering</option>
           <option value="Marketing">Marketing</option>
+          <option value="Finance">Finance</option>
+          <option value="Sales">Sales</option>
         </select>
       </div>
 
+      {/* Employee Table */}
       {loading ? (
         <div className="text-white">Loading...</div>
       ) : (
@@ -93,10 +135,19 @@ const EmployeesPage = () => {
                   <td className="py-3 px-4">{emp.department}</td>
                   <td className="py-3 px-4">{emp.userRole}</td>
                   <td className="py-3 px-4 space-x-2">
-                    <button className="text-blue-600 hover:underline">
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => {
+                        setSelectedEmployee(emp);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
                       Edit
                     </button>
-                    <button className="text-red-600 hover:underline">
+                    <button
+                      onClick={() => handleDelete(emp.id)}
+                      className="text-red-600 hover:underline"
+                    >
                       Delete
                     </button>
                   </td>

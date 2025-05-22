@@ -2,15 +2,7 @@
 import { X } from "lucide-react";
 import ReactDOM from "react-dom";
 import { useState, useEffect } from "react";
-
-interface Employee {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  department: string;
-}
+import { Employee } from "../types/Employee";
 
 interface EditEmployeeFormModalProps {
   isOpen: boolean;
@@ -34,10 +26,10 @@ export default function EditEmployeeFormModal({
   useEffect(() => {
     if (employeeData) {
       setFormData({
-        name: employeeData.name,
+        name: employeeData.userName,
         email: employeeData.email,
         password: "", // Let user re-enter if updating
-        role: employeeData.role,
+        role: employeeData.userRole,
         department: employeeData.department,
       });
     }

@@ -34,6 +34,17 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        //after success response set the user in local storage
+        const returnedUser = data?.body?.user;
+        if (!returnedUser) {
+          //show failure message
+          toast.error("Failed to load user");
+          return;
+        } else {
+          //set user in local storage
+          localStorage.setItem("user", JSON.stringify(returnedUser));
+        }
+
         setSuccess(data.message);
         toast.success("login success");
         console.log("Navigating as: ", data.body.userRole);

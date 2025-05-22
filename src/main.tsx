@@ -16,23 +16,32 @@ import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import UserRolePage from "./pages/UseRolePage.tsx";
 import { ToastContainer, toast } from "react-toastify";
+
 // ✅ Inline wrapper to provide `user` to AdminLayout
 const AdminLayoutWithUser = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    try {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        console.log(savedUser);
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load user context");
     }
   }, []);
 
-  // if (!user) return <div>Loading user...</div>; // or redirect to login
+  // if (!user) return <div>Loading user...</div>;
 
   return (
-    <AdminLayout user={{ profile_image: "localhost:3000/uploads/121.jpg" }} />
+    <AdminLayout
+      user={{ profile_image: "localhost:3000/uploads/121.jpg" }}
+    ></AdminLayout>
   );
-};
+}; // ✅ <--- THIS was missing
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

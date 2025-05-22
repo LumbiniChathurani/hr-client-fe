@@ -21,6 +21,7 @@ export default AdminLayout;*/
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import { Outlet } from "react-router-dom";
+import { ReactNode } from "react";
 
 interface User {
   profile_image: string;
