@@ -17,6 +17,14 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import UserRolePage from "./pages/UseRolePage.tsx";
 import { ToastContainer, toast } from "react-toastify";
 
+import EmployeeLayout from "./layouts/EmployeeLayout";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import MyProfilePage from "./pages/MyProfilePage";
+import MyPayrollPage from "./pages/MyPayrollPage";
+import MyLeavePage from "./pages/MyLeavePage";
+import HelpModal from "./pages/HelpModal"; // Reuse existing
+import MyAttendance from "./pages/MyAttendance.tsx";
+
 // ✅ Inline wrapper to provide `user` to AdminLayout
 const AdminLayoutWithUser = () => {
   const [user, setUser] = useState(null);
@@ -43,6 +51,26 @@ const AdminLayoutWithUser = () => {
   );
 }; // ✅ <--- THIS was missing
 
+interface User {
+  profile_image: string;
+  // Add any other fields you use like `name`, `email`, `role`, etc.
+}
+
+const EmployeeLayoutWithUser = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  if (!user) return <div>Loading user...</div>;
+
+  return <EmployeeLayout user={user} />;
+};
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
@@ -61,6 +89,14 @@ createRoot(document.getElementById("root")!).render(
             <Route path="recruitment" element={<RecruitmentPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="user_management" element={<UserRolePage />} />
+          </Route>
+
+          <Route path="/employee" element={<EmployeeLayoutWithUser />}>
+            <Route index element={<EmployeeDashboard />} />
+            <Route path="profile" element={<MyProfilePage />} />
+            <Route path="attendance" element={<MyAttendance />} />
+            <Route path="payroll" element={<MyPayrollPage />} />
+            <Route path="leave" element={<MyLeavePage />} />
           </Route>
 
           <Route path="*" element={<NoSuchPage />} />
