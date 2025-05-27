@@ -1,67 +1,93 @@
-import { useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { Search } from "lucide-react";
+import EditPayrollFormModal from "./EditPayroll";
 
+// Types
 type PayType = "monthly" | "hourly";
 type StatusType = "Pending" | "Generated" | "Paid";
 
 interface PayrollEntry {
+  userId: number;
   id: number;
   name: string;
   department: string;
   payType: PayType;
   baseSalary?: number;
-  hourlyRate?: number;
+  hourly_rate?: number;
   hoursWorked?: number;
   bonus?: number;
   deductions?: number;
   status: StatusType;
 }
 
-const dummyPayroll: PayrollEntry[] = [
-  {
-    id: 1,
-    name: "Jane Doe",
-    department: "HR",
-    payType: "monthly",
-    baseSalary: 5000,
-    bonus: 500,
-    deductions: 200,
-    status: "Pending",
-  },
-  {
-    id: 2,
-    name: "John Smith",
-    department: "Engineering",
-    payType: "hourly",
-    hourlyRate: 50,
-    hoursWorked: 160,
-    bonus: 100,
-    deductions: 50,
-    status: "Generated",
-  },
-  {
-    id: 3,
-    name: "Emily Johnson",
-    department: "Marketing",
-    payType: "hourly",
-    hourlyRate: 60,
-    hoursWorked: 140,
-    bonus: 200,
-    deductions: 100,
-    status: "Paid",
-  },
-];
+interface PayrollData {
+  id: number;
+  employee_id: number;
+  userId: number;
+  base_salary: number;
+  bonus: number;
+  deductions: number;
+  pay_type: PayType;
+  hourly_rate: number;
+}
+
+const convertToPayrollData = (entry: PayrollEntry): PayrollData => {
+  console.log("data: ", entry);
+
+  return {
+    id: entry.userId,
+    userId: entry.userId,
+    employee_id: entry.userId, // Consider using real employee ID if available
+    base_salary:
+      entry.baseSalary ?? (entry.hourly_rate ?? 0) * (entry.hoursWorked ?? 0),
+    bonus: entry.bonus ?? 0,
+    deductions: entry.deductions ?? 0,
+    pay_type: entry.payType,
+    hourly_rate: entry.hourly_rate ?? 0,
+  };
+};
 
 const PayrollPage = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>("April");
-  const [payrollData, setPayrollData] = useState<PayrollEntry[]>(dummyPayroll);
+  const [payrollData, setPayrollData] = useState<PayrollEntry[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [updateDummy, setUpdateDummy] = useState({});
+  const [editingPayroll, setEditingPayroll] = useState<PayrollEntry | null>(
+    null
+  );
 
-  const calculateBase = (emp: PayrollEntry): number => {
-    return emp.payType === "hourly"
-      ? (emp.hourlyRate || 0) * (emp.hoursWorked || 0)
+  useEffect(() => {
+    const fetchPayroll = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/payroll`);
+        if (!res.ok) throw new Error("Network response was not ok");
+        const rawData = await res.json();
+        const data: PayrollEntry[] = rawData.map((item: any) => ({
+          id: item.id,
+          userId: item.userId,
+          name: item.name,
+          department: item.department,
+          payType: item.pay_type,
+          baseSalary: item.base_salary,
+          hourly_rate: item.hourly_rate,
+          hoursWorked: item.hours_worked,
+          bonus: item.bonus,
+          deductions: item.deductions,
+          status: item.status,
+        }));
+        setPayrollData(data);
+      } catch (err) {
+        console.error("Failed to fetch payroll:", err);
+      }
+    };
+
+    fetchPayroll();
+  }, [updateDummy]);
+
+  const calculateBase = (emp: PayrollEntry): number =>
+    emp.payType === "hourly"
+      ? (emp.hourly_rate || 0) * (emp.hoursWorked || 0)
       : emp.baseSalary || 0;
-  };
 
   const filteredData = payrollData.filter((emp) =>
     emp.name.toLowerCase().includes(search.toLowerCase())
@@ -73,10 +99,49 @@ const PayrollPage = () => {
     0
   );
 
-  const updateStatus = (id: number, newStatus: StatusType) => {
-    setPayrollData((prev) =>
-      prev.map((emp) => (emp.id === id ? { ...emp, status: newStatus } : emp))
-    );
+  const updateStatus = async (id: number, newStatus: StatusType) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/payroll/mark-paid/${id}`,
+        {
+          method: "PUT",
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update payroll status");
+
+      setPayrollData((prev) =>
+        prev.map((emp) => (emp.id === id ? { ...emp, status: newStatus } : emp))
+      );
+    } catch (err) {
+      console.error("Error updating status:", err);
+    }
+  };
+
+  const handleUpdate = async (updated: Partial<PayrollEntry>) => {
+    if (!editingPayroll) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/payroll/update/${editingPayroll.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        }
+      );
+
+      if (!res.ok) throw new Error("Update failed");
+
+      setPayrollData((prev) =>
+        prev.map((emp) =>
+          emp.id === editingPayroll.id ? { ...emp, ...updated } : emp
+        )
+      );
+      setEditingPayroll(null);
+      setUpdateDummy({});
+    } catch (err) {
+      console.error("Failed to update payroll:", err);
+    }
   };
 
   return (
@@ -100,6 +165,7 @@ const PayrollPage = () => {
             </option>
           ))}
         </select>
+
         <div className="relative">
           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
             <Search size={16} />
@@ -125,7 +191,7 @@ const PayrollPage = () => {
         </div>
       </div>
 
-      {/* Summary Card */}
+      {/* Summary */}
       <div className="bg-light-purple dark:bg-dark-purple-muted p-6 rounded-xl shadow text-center mb-6">
         <h2 className="text-lg font-semibold">
           Total Payroll for {selectedMonth}
@@ -135,7 +201,7 @@ const PayrollPage = () => {
         </p>
       </div>
 
-      {/* Payroll Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white dark:bg-dark-purple-muted rounded-xl shadow">
           <thead className="bg-gray-100 dark:bg-purple-800 text-black dark:text-white">
@@ -152,22 +218,24 @@ const PayrollPage = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((emp) => {
+            {filteredData.map((emp, index) => {
               const base = calculateBase(emp);
               const netPay = base + (emp.bonus || 0) - (emp.deductions || 0);
 
               return (
                 <tr
-                  key={emp.id}
+                  key={index}
                   className="border-b border-gray-200 dark:border-purple-700 hover:bg-gray-50 dark:hover:bg-purple-900"
                 >
-                  <td className="py-3 px-4">{emp.name}</td>
-                  <td className="py-3 px-4">{emp.department}</td>
-                  <td className="py-3 px-4 capitalize">{emp.payType}</td>
+                  <td className="py-3 px-4">{emp.name ?? "N/A"}</td>
+                  <td className="py-3 px-4">{emp.department ?? "N/A"}</td>
+                  <td className="py-3 px-4 capitalize">
+                    {emp.payType ?? "N/A"}
+                  </td>
                   <td className="py-3 px-4">
                     {emp.payType === "hourly" ? (
                       <>
-                        {emp.hoursWorked} hrs × Rs.{emp.hourlyRate}
+                        {emp.hoursWorked} hrs × Rs.{emp.hourly_rate ?? 0}
                         <br />
                         <span className="font-medium">= Rs.{base}</span>
                       </>
@@ -194,18 +262,29 @@ const PayrollPage = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {emp.status}
+                      {emp.status ?? "N/A"}
                     </span>
                   </td>
                   <td className="py-3 px-4 flex gap-2">
                     <button
                       onClick={() => updateStatus(emp.id, "Paid")}
                       className="text-green-600 hover:underline"
+                      aria-label="Mark as Paid"
                     >
                       Mark as Paid
                     </button>
-                    <button className="text-blue-600 hover:underline">
+                    <button
+                      disabled
+                      className="text-gray-400 cursor-not-allowed"
+                    >
                       View
+                    </button>
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() => setEditingPayroll(emp)}
+                      aria-label="Edit Payroll"
+                    >
+                      Edit
                     </button>
                   </td>
                 </tr>
@@ -214,6 +293,15 @@ const PayrollPage = () => {
           </tbody>
         </table>
       </div>
+
+      {editingPayroll && (
+        <EditPayrollFormModal
+          payrollData={convertToPayrollData(editingPayroll)}
+          isOpen={true}
+          onClose={() => setEditingPayroll(null)}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 };

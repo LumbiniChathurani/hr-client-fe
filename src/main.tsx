@@ -72,7 +72,7 @@ const EmployeeLayoutWithUser = () => {
 };
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <>
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
@@ -104,5 +104,5 @@ createRoot(document.getElementById("root")!).render(
       </BrowserRouter>
     </ThemeProvider>
     <ToastContainer />
-  </StrictMode>
+  </>
 );
