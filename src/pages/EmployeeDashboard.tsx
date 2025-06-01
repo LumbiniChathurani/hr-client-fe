@@ -54,7 +54,7 @@ const EmployeeDashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-black dark:text-purple-50">
         <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-5 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold">Leaves Remaining</h2>
+          <h2 className="text-lg font-semibold">Leaves Taken</h2>
           <p className="text-3xl font-bold mt-2">12</p>
         </div>
         <div className="bg-gradient-to-br from-green-400 to-emerald-600 p-5 rounded-xl shadow-md">
