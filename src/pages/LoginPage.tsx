@@ -135,11 +135,11 @@ function handleRoute(userRole: String): string {
     case "REQRUITER":
       return "/";
     case "USER":
-      return "/";
+      return "/employee";
     case "HRM":
       return "/dashboard";
-    case "EMPLOYEE":
-      return "/dashboard";
+    case "employee":
+      return "/employee";
     default:
       return "/";
   }

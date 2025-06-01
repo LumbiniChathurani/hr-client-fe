@@ -25,6 +25,9 @@ import MyLeavePage from "./pages/MyLeavePage";
 import HelpModal from "./pages/HelpModal"; // Reuse existing
 import MyAttendance from "./pages/MyAttendance.tsx";
 
+interface User {
+  profile_image: string;
+}
 // ✅ Inline wrapper to provide `user` to AdminLayout
 const AdminLayoutWithUser = () => {
   const [user, setUser] = useState(null);

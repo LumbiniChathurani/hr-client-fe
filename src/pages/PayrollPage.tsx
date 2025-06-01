@@ -124,21 +124,9 @@ const PayrollPage = () => {
     }
   };
 
-  const handleUpdate = async (updated: Partial<PayrollEntry>) => {
+  const handleUpdate = async () => {
     if (!editing) return;
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/payroll/update/${editing.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updated),
-        }
-      );
-      if (!res.ok) throw new Error("Update failed");
-      setPayroll((prev) =>
-        prev.map((e) => (e.id === editing.id ? { ...e, ...updated } : e))
-      );
       setEditing(null);
       setRefreshTrigger({});
     } catch (err) {
@@ -310,7 +298,11 @@ const PayrollPage = () => {
 
       {editing && (
         <EditPayrollFormModal
-          payrollData={convertToPayrollData(editing)}
+          payrollData={{
+            ...convertToPayrollData(editing),
+            month_num: month,
+            year_num: year,
+          }}
           isOpen={true}
           onClose={() => setEditing(null)}
           onUpdate={handleUpdate}

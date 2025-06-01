@@ -1,11 +1,26 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { getProperImageUrl } from "../util/ImageUtil";
 
 const EmployeeDashboard = () => {
+  const [employee, setEmployee] = useState<Partial<EmployeeDetailsType>>({});
+  //load emplyee details when component is rendered
+  useEffect(() => {
+    loadUserDetails(1)
+      .then((data) => setEmployee(data))
+      .catch((e) => {
+        //if error show toast message
+        toast.error(e);
+      });
+  }, []);
+
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-dark-purple text-black dark:text-purple-50">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-extrabold">Welcome to Your Dashboard</h1>
+        <h1 className="text-3xl font-extrabold">
+          Welcome to Your Dashboard {employee.userName ?? ""}
+        </h1>
       </div>
 
       <p className="text-gray-600 dark:text-slate-300 mb-6">
@@ -16,14 +31,19 @@ const EmployeeDashboard = () => {
       <div className="bg-white dark:bg-dark-purple-muted p-5 rounded-xl shadow mb-6">
         <div className="flex items-center gap-4">
           <img
-            src="https://via.placeholder.com/80"
+            src={getProperImageUrl(employee.profile_image)}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
           />
           <div>
-            <h2 className="text-xl font-semibold">Jane Doe</h2>
+            <h2 className="text-xl font-semibold">
+              {employee.userName ?? "User Name N/A"}
+            </h2>
+            <h2 className="text-sm text-gray-300">
+              {employee.email ?? "User Email N/A"}
+            </h2>
             <p className="text-gray-500 dark:text-slate-300">
-              Software Engineer
+              {employee.userRole ?? "User Role N/A"}
             </p>
           </div>
         </div>
@@ -74,5 +94,28 @@ const EmployeeDashboard = () => {
     </div>
   );
 };
+
+//emplyee details type
+interface EmployeeDetailsType {
+  id: number;
+  userName: string;
+  email: string;
+  userRole: string;
+  department: string;
+  profile_image: string;
+}
+
+//fetch employee details
+async function loadUserDetails(
+  employeeId: number
+): Promise<Partial<EmployeeDetailsType>> {
+  const response = await fetch(
+    `http://localhost:3000/api/employees/${employeeId}`
+  );
+  if (!response.ok) throw new Error("Failed to load user details");
+  const data = await response.json();
+
+  return data ?? {};
+}
 
 export default EmployeeDashboard;

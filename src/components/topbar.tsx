@@ -10,6 +10,11 @@ interface User {
 const Topbar = ({ user }: { user: User }) => {
   const { theme, toggleTheme } = useTheme();
 
+  // ✅ Safely normalize the profile image URL
+  const profileImageUrl = user.profile_image.startsWith("http")
+    ? user.profile_image
+    : `http://localhost:3000${user.profile_image}`;
+
   return (
     <header className="h-16 bg-light-purple dark:bg-dark-purple-muted shadow flex items-center justify-between px-6">
       <div className="flex items-center gap-6">
@@ -35,7 +40,7 @@ const Topbar = ({ user }: { user: User }) => {
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <img
-          src={`http://localhost:3000${user.profile_image}`}
+          src={`${profileImageUrl}?t=${Date.now()}`} // Bust cache with timestamp
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover border-2 border-purple-400"
         />

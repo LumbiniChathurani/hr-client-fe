@@ -10,13 +10,15 @@ interface PayrollData {
   deductions: number;
   hourly_rate: number;
   pay_type: "monthly" | "hourly";
+  month_num: number;
+  year_num: number;
 }
 
 interface EditPayrollFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   payrollData: PayrollData | null;
-  onUpdate: (updated: Partial<PayrollData>) => void;
+  onUpdate: () => void;
 }
 
 const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
@@ -32,6 +34,8 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
     deductions: "",
     hourly_rate: 0,
     pay_type: "monthly" as "monthly" | "hourly",
+    month_num: payrollData?.month_num,
+    year_num: payrollData?.year_num,
   });
 
   useEffect(() => {
@@ -51,6 +55,8 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
         deductions: deductions.toString(),
         hourly_rate,
         pay_type,
+        month_num: payrollData.month_num,
+        year_num: payrollData.year_num,
       });
     }
   }, [payrollData]);
@@ -70,34 +76,23 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
     if (!payrollData) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/payroll/update/${payrollData.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...formData,
-            base_salary: parseFloat(formData.base_salary),
-            bonus: parseFloat(formData.bonus),
-            deductions: parseFloat(formData.deductions),
-          }),
-        }
-      );
+      const response = await fetch(`http://localhost:3000/api/payroll/update`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          base_salary: parseFloat(formData.base_salary),
+          bonus: parseFloat(formData.bonus),
+          deductions: parseFloat(formData.deductions),
+        }),
+      });
 
       if (!response.ok)
         throw new Error(
           (await response.json()).error || "Failed to update payroll"
         );
 
-      onUpdate({
-        id: payrollData.id,
-        employee_id: formData.employee_id,
-        base_salary: parseFloat(formData.base_salary),
-        bonus: parseFloat(formData.bonus),
-        deductions: parseFloat(formData.deductions),
-        pay_type: formData.pay_type,
-        hourly_rate: formData.hourly_rate,
-      });
+      onUpdate();
 
       onClose();
     } catch (err: any) {
