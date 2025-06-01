@@ -18,6 +18,8 @@ interface PayrollEntry {
   bonus?: number;
   deductions?: number;
   status: StatusType;
+  month_num: number;
+  year_num: number;
 }
 
 interface PayrollData {
@@ -29,6 +31,8 @@ interface PayrollData {
   deductions: number;
   pay_type: PayType;
   hourly_rate: number;
+  month_num: number;
+  year_num: number;
 }
 
 const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
@@ -41,6 +45,8 @@ const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
   deductions: entry.deductions ?? 0,
   pay_type: entry.payType,
   hourly_rate: entry.hourly_rate ?? 0,
+  month_num: entry.month_num,
+  year_num: entry.year_num,
 });
 
 const PayrollPage = () => {
@@ -50,6 +56,10 @@ const PayrollPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState({});
   const [editing, setEditing] = useState<PayrollEntry | null>(null);
+
+  useEffect(() => {
+    console.log("Payroll changed: ", payroll);
+  }, [payroll]);
 
   useEffect(() => {
     const fetchPayroll = async () => {
@@ -75,15 +85,19 @@ const PayrollPage = () => {
             bonus: item.bonus,
             deductions: item.deductions,
             status: item.status,
+            month_num: item.month_num,
+            year_num: item.year_num,
           })
         );
-        setPayroll(formatted);
+
+        console.log("formatted: ", formatted);
+        setPayroll([...formatted]);
       } catch (err) {
         console.error("Failed to fetch payroll:", err);
       }
     };
     fetchPayroll();
-  }, [refreshTrigger, month, year]);
+  }, [refreshTrigger, month, year, setPayroll]);
 
   const calcBase = (e: PayrollEntry) =>
     e.payType === "hourly"
@@ -93,11 +107,7 @@ const PayrollPage = () => {
   const calcNetPay = (e: PayrollEntry) =>
     calcBase(e) + (e.bonus || 0) - (e.deductions || 0);
 
-  const filtered = payroll.filter((e) =>
-    e.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const total = filtered.reduce((sum, e) => sum + calcNetPay(e), 0);
+  const total = 0;
 
   const updateStatus = async (id: number, newStatus: StatusType) => {
     try {
@@ -229,66 +239,71 @@ const PayrollPage = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((e) => (
-              <tr
-                key={e.id}
-                className="border-b border-gray-200 dark:border-purple-700 hover:bg-gray-50 dark:hover:bg-purple-900"
-              >
-                <td className="py-3 px-4">{e.name}</td>
-                <td className="py-3 px-4">{e.department}</td>
-                <td className="py-3 px-4 capitalize">{e.payType}</td>
-                <td className="py-3 px-4">
-                  {e.payType === "hourly" ? (
-                    <>
-                      {e.hoursWorked} hrs × Rs.{e.hourly_rate}
-                      <br />
-                      <span className="font-medium">= Rs.{calcBase(e)}</span>
-                    </>
-                  ) : (
-                    <>Rs.{calcBase(e)}</>
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  Rs.{(e.bonus || 0).toLocaleString()}
-                </td>
-                <td className="py-3 px-4 text-red-500">
-                  -Rs.{(e.deductions || 0).toLocaleString()}
-                </td>
-                <td className="py-3 px-4 font-semibold">
-                  Rs.{calcNetPay(e).toLocaleString()}
-                </td>
-                <td className="py-3 px-4">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      e.status === "Paid"
-                        ? "bg-green-100 text-green-800"
-                        : e.status === "Generated"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {e.status ?? "N/A"}
-                  </span>
-                </td>
-                <td className="py-3 px-4 flex gap-2">
-                  <button
-                    onClick={() => updateStatus(e.id, "Paid")}
-                    className="text-green-600 hover:underline"
-                  >
-                    Mark as Paid
-                  </button>
-                  <button disabled className="text-gray-400 cursor-not-allowed">
-                    View
-                  </button>
-                  <button
-                    onClick={() => setEditing(e)}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {payroll.map((e, index) => {
+              return (
+                <tr
+                  key={index}
+                  className="border-b border-gray-200 dark:border-purple-700 hover:bg-gray-50 dark:hover:bg-purple-900"
+                >
+                  <td className="py-3 px-4">{e.name}</td>
+                  <td className="py-3 px-4">{e.department}</td>
+                  <td className="py-3 px-4 capitalize">{e.payType}</td>
+                  <td className="py-3 px-4">
+                    {e.payType === "hourly" ? (
+                      <>
+                        {e.hoursWorked} hrs × Rs.{e.hourly_rate}
+                        <br />
+                        <span className="font-medium">= Rs.{calcBase(e)}</span>
+                      </>
+                    ) : (
+                      <>Rs.{calcBase(e)}</>
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    Rs.{(e.bonus || 0).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4 text-red-500">
+                    -Rs.{(e.deductions || 0).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4 font-semibold">
+                    Rs.{calcNetPay(e).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        e.status === "Paid"
+                          ? "bg-green-100 text-green-800"
+                          : e.status === "Generated"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {e.status ?? "N/A"}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 flex gap-2">
+                    <button
+                      onClick={() => updateStatus(e.id, "Paid")}
+                      className="text-green-600 hover:underline"
+                    >
+                      Mark as Paid
+                    </button>
+                    <button
+                      disabled
+                      className="text-gray-400 cursor-not-allowed"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => setEditing(e)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
