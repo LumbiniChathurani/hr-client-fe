@@ -45,7 +45,7 @@ const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
 
 const PayrollPage = () => {
   const [month, setMonth] = useState<number>(1);
-  const [monthNum, setMonthNum] = useState<number>(new Date().getMonth());
+  const [year, setYear] = useState<number>(new Date().getFullYear());
   const [payroll, setPayroll] = useState<PayrollEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState({});
@@ -54,7 +54,13 @@ const PayrollPage = () => {
   useEffect(() => {
     const fetchPayroll = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/payroll");
+        const params = new URLSearchParams();
+        params.set("month", (month ?? "1").toString());
+        params.set("year", (year ?? "1970").toString());
+
+        const res = await fetch(
+          `http://localhost:3000/api/payroll?${params.toString()}`
+        );
         const data = await res.json();
         const formatted = data.map(
           (item: any): PayrollEntry => ({
@@ -77,7 +83,7 @@ const PayrollPage = () => {
       }
     };
     fetchPayroll();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, month, year]);
 
   const calcBase = (e: PayrollEntry) =>
     e.payType === "hourly"
@@ -163,7 +169,8 @@ const PayrollPage = () => {
           <input
             min={1970}
             type="number"
-            value={new Date().getFullYear()}
+            onChange={(e) => setYear(parseInt(e.target.value ?? "1970"))}
+            value={year}
             className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
           />
         </div>
@@ -260,7 +267,7 @@ const PayrollPage = () => {
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {e.status}
+                    {e.status ?? "N/A"}
                   </span>
                 </td>
                 <td className="py-3 px-4 flex gap-2">
