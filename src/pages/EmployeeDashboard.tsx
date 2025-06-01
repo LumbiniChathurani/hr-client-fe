@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getProperImageUrl } from "../util/ImageUtil";
+import { UserContext } from "../layouts/EmployeeLayout";
 
 const EmployeeDashboard = () => {
+  const user = useContext(UserContext);
   const [employee, setEmployee] = useState<Partial<EmployeeDetailsType>>({});
   //load emplyee details when component is rendered
   useEffect(() => {
-    loadUserDetails(1)
+    loadUserDetails(user.id ?? 0)
       .then((data) => setEmployee(data))
       .catch((e) => {
         //if error show toast message
         toast.error(e);
       });
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-dark-purple text-black dark:text-purple-50">

@@ -17,7 +17,7 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import UserRolePage from "./pages/UseRolePage.tsx";
 import { ToastContainer, toast } from "react-toastify";
 import ApplicantsList from "./pages/ApplicantList.tsx";
-import EmployeeLayout from "./layouts/EmployeeLayout";
+import EmployeeLayout, { UserContextType } from "./layouts/EmployeeLayout";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import MyProfilePage from "./pages/MyProfilePage";
 import MyPayrollPage from "./pages/MyPayrollPage";
@@ -60,7 +60,7 @@ interface User {
 }
 
 const EmployeeLayoutWithUser = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserContextType | null>(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
