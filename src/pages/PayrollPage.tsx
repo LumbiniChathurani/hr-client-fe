@@ -45,6 +45,7 @@ const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
 
 const PayrollPage = () => {
   const [month, setMonth] = useState("April");
+  const [monthNum, setMonthNum] = useState<number>(new Date().getMonth());
   const [payroll, setPayroll] = useState<PayrollEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState({});
@@ -137,17 +138,35 @@ const PayrollPage = () => {
 
       {/* Controls */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        {/* select payroll month */}
         <select
           value={month}
           onChange={(e) => setMonth(e.target.value)}
           className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
         >
-          {["January", "February", "March", "April", "May"].map((m) => (
-            <option key={m} value={m}>
-              {m} 2025
-            </option>
-          ))}
+          {Array.from({ length: 12 }, (_, i) => {
+            const monthIndex = i; // 0 to 11
+            const monthName = new Date(0, monthIndex).toLocaleString(
+              "default",
+              { month: "long" }
+            );
+            return (
+              <option key={monthIndex + 1} value={monthIndex + 1}>
+                {monthName}
+              </option>
+            );
+          })}
         </select>
+        {/* set payroll year */}
+        <div className="flex flex-row items-center gap-x-5">
+          <h5>Year: </h5>
+          <input
+            min={1970}
+            type="number"
+            value={new Date().getFullYear()}
+            className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
+          />
+        </div>
 
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -276,5 +295,9 @@ const PayrollPage = () => {
     </div>
   );
 };
+
+function range(start: number, end: number): number[] {
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
 
 export default PayrollPage;
