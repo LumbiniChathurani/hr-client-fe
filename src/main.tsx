@@ -16,7 +16,7 @@ import RecruitmentPage from "./pages/RecruitmentPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import UserRolePage from "./pages/UseRolePage.tsx";
 import { ToastContainer, toast } from "react-toastify";
-
+import ApplicantsList from "./pages/ApplicantList.tsx";
 import EmployeeLayout from "./layouts/EmployeeLayout";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import MyProfilePage from "./pages/MyProfilePage";
@@ -87,6 +87,10 @@ createRoot(document.getElementById("root")!).render(
             <Route path="payroll" element={<PayrollPage />} />
             <Route path="leave" element={<LeavePage />} />
             <Route path="recruitment" element={<RecruitmentPage />} />
+            <Route
+              path="recruitment/:jobId/applicants"
+              element={<ApplicantsList />}
+            />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="user_management" element={<UserRolePage />} />
           </Route>
