@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 const MyProfilePage = () => {
+  const [newPassword, setNewPassword] = useState("");
+
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-dark-purple text-black dark:text-purple-50">
       {/* Header */}
@@ -51,17 +53,7 @@ const MyProfilePage = () => {
               readOnly
             />
           </div>
-          <div>
-            <label className="block text-sm text-gray-600 dark:text-slate-300">
-              Phone
-            </label>
-            <input
-              type="text"
-              value="+1 234 567 8901"
-              className="w-full p-2 mt-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-[#2D273B] dark:text-white"
-              readOnly
-            />
-          </div>
+
           <div>
             <label className="block text-sm text-gray-600 dark:text-slate-300">
               Department
@@ -77,13 +69,22 @@ const MyProfilePage = () => {
       </div>
 
       {/* Settings Section */}
-      <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow">
+      <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow w-full">
         <h3 className="text-xl font-semibold mb-4">Account Settings</h3>
-        <ul className="space-y-3 text-sm text-gray-700 dark:text-slate-300">
-          <li>🔒 Change password</li>
-          <li>📧 Update email preferences</li>
-          <li>🌗 Toggle dark mode</li>
-        </ul>
+        <h1 className="text-base font-semibold">Update password</h1>
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value ?? "")}
+          className="w-full p-2 mt-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-[#2D273B] dark:text-white"
+          placeholder="new password here...."
+        />
+        <button
+          disabled={!newPassword}
+          className="disabled:bg-gray-700 disabled:cursor-not-allowed px-4 py-2 text-sm font-bold mx-auto my-5 bg-blue-800 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
+        >
+          Update
+        </button>
       </div>
     </div>
   );
