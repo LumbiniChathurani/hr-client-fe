@@ -44,7 +44,7 @@ const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
 });
 
 const PayrollPage = () => {
-  const [month, setMonth] = useState("April");
+  const [month, setMonth] = useState<number>(1);
   const [monthNum, setMonthNum] = useState<number>(new Date().getMonth());
   const [payroll, setPayroll] = useState<PayrollEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -141,7 +141,7 @@ const PayrollPage = () => {
         {/* select payroll month */}
         <select
           value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          onChange={(e) => setMonth(parseInt(e.target.value))}
           className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
         >
           {Array.from({ length: 12 }, (_, i) => {
@@ -193,7 +193,9 @@ const PayrollPage = () => {
 
       {/* Summary */}
       <div className="bg-light-purple dark:bg-dark-purple-muted p-6 rounded-xl shadow text-center mb-6">
-        <h2 className="text-lg font-semibold">Total Payroll for {month}</h2>
+        <h2 className="text-lg font-semibold">
+          Total Payroll for {getMonthName(month)}
+        </h2>
         <p className="text-3xl font-bold mt-2">Rs.{total.toLocaleString()}</p>
       </div>
 
@@ -296,8 +298,7 @@ const PayrollPage = () => {
   );
 };
 
-function range(start: number, end: number): number[] {
-  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+function getMonthName(monthNum: number): string {
+  return new Date(0, monthNum - 1).toLocaleString("default", { month: "long" });
 }
-
 export default PayrollPage;
