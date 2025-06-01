@@ -11,9 +11,9 @@ const Topbar = ({ user }: { user: User }) => {
   const { theme, toggleTheme } = useTheme();
 
   // ✅ Safely normalize the profile image URL
-  const profileImageUrl = user.profile_image.startsWith("http")
-    ? user.profile_image
-    : `http://localhost:3000${user.profile_image}`;
+  const profileImageUrl = user?.profile_image?.startsWith("http")
+    ? user?.profile_image
+    : `http://localhost:3000${user?.profile_image}`;
 
   return (
     <header className="h-16 bg-light-purple dark:bg-dark-purple-muted shadow flex items-center justify-between px-6">

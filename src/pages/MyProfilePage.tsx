@@ -110,6 +110,9 @@ const MyProfilePage = () => {
         />
         <button
           disabled={!newPassword}
+          onClick={() => {
+            updateUserPassword(newPassword, userState.id ?? 0);
+          }}
           className="disabled:bg-gray-700 disabled:cursor-not-allowed px-4 py-2 text-sm font-bold mx-auto my-5 bg-blue-800 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
         >
           Update
@@ -118,5 +121,25 @@ const MyProfilePage = () => {
     </div>
   );
 };
+
+async function updateUserPassword(newPassword: string, userId: number) {
+  if (!newPassword) throw new Error("Invalid password format");
+  const response = await fetch(
+    "http://localhost:3000/api/employees/new-password",
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newPassword, userId }),
+    }
+  );
+  if (!response.ok) {
+    const body = await response.json();
+    toast.error("Failed: " + (body ?? ""));
+  } else {
+    toast.success("Password updated");
+  }
+}
 
 export default MyProfilePage;
