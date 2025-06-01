@@ -98,7 +98,7 @@ const EmployeeDashboard = () => {
 };
 
 //emplyee details type
-interface EmployeeDetailsType {
+export interface EmployeeDetailsType {
   id: number;
   userName: string;
   email: string;
@@ -108,7 +108,7 @@ interface EmployeeDetailsType {
 }
 
 //fetch employee details
-async function loadUserDetails(
+export async function loadUserDetails(
   employeeId: number
 ): Promise<Partial<EmployeeDetailsType>> {
   const response = await fetch(

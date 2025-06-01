@@ -1,7 +1,32 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../layouts/EmployeeLayout";
+import { EmployeeDetailsType, loadUserDetails } from "./EmployeeDashboard";
+import { toast } from "react-toastify";
+import { getProperImageUrl } from "../util/ImageUtil";
 
 const MyProfilePage = () => {
+  const user = useContext(UserContext);
   const [newPassword, setNewPassword] = useState("");
+  const [userState, setUserState] = useState<Partial<EmployeeDetailsType>>({});
+
+  //fetch user details
+  useEffect(() => {
+    //if id is valid
+    if (user.id) {
+      loadUserDetails(user.id)
+        .then((data) => setUserState(data))
+        .catch(() => {
+          toast.error("failed to load profile information");
+        });
+    }
+  }, [user]);
+
+  if (!userState?.email)
+    return (
+      <div className="w-full flex justify-center items-center">
+        <h1 className="text-4xl">Loading...</h1>
+      </div>
+    );
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-dark-purple text-black dark:text-purple-50">
@@ -14,15 +39,19 @@ const MyProfilePage = () => {
       {/* Profile Card */}
       <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow mb-8 flex items-center gap-6">
         <img
-          src="https://via.placeholder.com/100"
+          src={getProperImageUrl(userState?.profile_image)}
           alt="Profile"
           className="w-24 h-24 rounded-full border-4 border-purple-500 object-cover"
         />
         <div>
-          <h2 className="text-2xl font-semibold">Jane Doe</h2>
-          <p className="text-gray-500 dark:text-slate-300">Software Engineer</p>
+          <h2 className="text-2xl font-semibold">
+            {userState?.userName ?? "User Name N/A"}
+          </h2>
           <p className="text-gray-500 dark:text-slate-300">
-            janedoe@example.com
+            {userState?.userRole ?? "User Role N/A"}
+          </p>
+          <p className="text-gray-500 dark:text-slate-300">
+            {userState?.email ?? "Email N/A"}
           </p>
         </div>
       </div>
@@ -37,7 +66,7 @@ const MyProfilePage = () => {
             </label>
             <input
               type="text"
-              value="Jane Doe"
+              value={userState?.userName ?? "User Name N/A"}
               className="w-full p-2 mt-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-[#2D273B] dark:text-white"
               readOnly
             />
@@ -48,7 +77,7 @@ const MyProfilePage = () => {
             </label>
             <input
               type="email"
-              value="janedoe@example.com"
+              value={userState?.email ?? "Email N/A"}
               className="w-full p-2 mt-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-[#2D273B] dark:text-white"
               readOnly
             />
@@ -60,7 +89,7 @@ const MyProfilePage = () => {
             </label>
             <input
               type="text"
-              value="Engineering"
+              value={userState?.department ?? "Department N/A"}
               className="w-full p-2 mt-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-[#2D273B] dark:text-white"
               readOnly
             />
