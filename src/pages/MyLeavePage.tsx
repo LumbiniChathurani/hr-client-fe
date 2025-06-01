@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../layouts/EmployeeLayout";
+import { toast } from "react-toastify";
 
 const MyLeavePage = () => {
   const user = useContext(UserContext);
 
   const [leaveRecords, setLeaveRecords] = useState([]);
-
+  const [refresh, setRefresh] = useState({});
   const [formData, setFormData] = useState({
     leave_type: "Annual Leave",
     start_date: "",
@@ -25,7 +26,7 @@ const MyLeavePage = () => {
       .then((res) => res.json())
       .then((data) => setLeaveRecords(data))
       .catch((err) => console.error("Error fetching leave records:", err));
-  }, []);
+  }, [refresh]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,11 +62,8 @@ const MyLeavePage = () => {
         throw new Error("Failed to submit leave request");
       }
 
-      alert("Leave request submitted!");
-
-      const updated = await fetch("http://localhost:3000/api/leaves");
-      const data = await updated.json();
-      setLeaveRecords(data);
+      toast.success("Leave request submitted!");
+      setRefresh({});
     } catch (error) {
       console.error("Submission error:", error);
     }
