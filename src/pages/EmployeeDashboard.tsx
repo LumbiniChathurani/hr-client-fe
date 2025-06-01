@@ -59,7 +59,7 @@ const EmployeeDashboard = () => {
         </div>
         <div className="bg-gradient-to-br from-green-400 to-emerald-600 p-5 rounded-xl shadow-md">
           <h2 className="text-lg font-semibold">Next Salary Date</h2>
-          <p className="text-3xl font-bold mt-2">28 May 2025</p>
+          <p className="text-3xl font-bold mt-2">{getNextSalaryDate()}</p>
         </div>
         <div className="bg-gradient-to-br from-pink-500 to-rose-600 p-5 rounded-xl shadow-md">
           <h2 className="text-lg font-semibold">Last Login</h2>
@@ -118,6 +118,12 @@ async function loadUserDetails(
   const data = await response.json();
 
   return data ?? {};
+}
+
+function getNextSalaryDate(): string {
+  const date = new Date();
+  date.setDate(25);
+  return date.toLocaleDateString();
 }
 
 export default EmployeeDashboard;
