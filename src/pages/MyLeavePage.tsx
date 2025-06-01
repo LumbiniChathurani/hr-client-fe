@@ -1,17 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../layouts/EmployeeLayout";
 
 const MyLeavePage = () => {
+  const user = useContext(UserContext);
+
   const [leaveRecords, setLeaveRecords] = useState([]);
+
   const [formData, setFormData] = useState({
     leave_type: "Annual Leave",
     start_date: "",
     end_date: "",
     reason: "",
+    userId: user.id,
+    email: user.email,
   });
+
+  useEffect(() => {
+    setFormData((c) => ({ ...c, userId: user.id, email: user.email }));
+  }, [user]);
 
   // Fetch leave records on mount
   useEffect(() => {
-    fetch("http://localhost:3000/api/leaves")
+    fetch(`http://localhost:3000/api/leaves/my-leaves/${formData.userId}`)
       .then((res) => res.json())
       .then((data) => setLeaveRecords(data))
       .catch((err) => console.error("Error fetching leave records:", err));
@@ -64,6 +74,9 @@ const MyLeavePage = () => {
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-dark-purple text-black dark:text-purple-50">
       <h1 className="text-3xl font-extrabold mb-4">My Leave</h1>
+      <h1 className="text-sm font-extrabold mb-4">
+        {formData.email ?? "Email N/A"}
+      </h1>
       <p className="text-gray-600 dark:text-slate-300 mb-6">
         Review your leave history and request new time off.
       </p>
