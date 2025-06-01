@@ -62,8 +62,8 @@ const EmployeeDashboard = () => {
           <p className="text-3xl font-bold mt-2">{getNextSalaryDate()}</p>
         </div>
         <div className="bg-gradient-to-br from-pink-500 to-rose-600 p-5 rounded-xl shadow-md">
-          <h2 className="text-lg font-semibold">Last Login</h2>
-          <p className="text-3xl font-bold mt-2">Today at 9:00 AM</p>
+          <h2 className="text-lg font-semibold text-wrap">Last Login</h2>
+          <p className="text-3xl font-bold mt-2">{getLastLoginDateTime()}</p>
         </div>
       </div>
 
@@ -124,6 +124,18 @@ function getNextSalaryDate(): string {
   const date = new Date();
   date.setDate(25);
   return date.toLocaleDateString();
+}
+
+function getLastLoginDateTime(): string {
+  try {
+    const itemStr = localStorage.getItem("user");
+    if (!itemStr) return "N/A";
+
+    const login = JSON.parse(itemStr).lastLogin;
+    return login;
+  } catch (error) {
+    return "N/A";
+  }
 }
 
 export default EmployeeDashboard;
