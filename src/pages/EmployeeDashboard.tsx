@@ -32,11 +32,13 @@ const EmployeeDashboard = () => {
       {/* Profile Section */}
       <div className="bg-white dark:bg-dark-purple-muted p-5 rounded-xl shadow mb-6">
         <div className="flex items-center gap-4">
-          <img
+          {/*
+         <img
             src={getProperImageUrl(employee.profile_image)}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
           />
+         */}
           <div>
             <h2 className="text-xl font-semibold">
               {employee.userName ?? "User Name N/A"}
@@ -68,12 +70,14 @@ const EmployeeDashboard = () => {
       </div>
 
       {/* Chart Placeholder */}
+      {/*
       <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow mb-8">
         <h2 className="text-xl font-semibold mb-4">Workload Trends</h2>
         <div className="h-48 flex items-center justify-center text-gray-400 dark:text-slate-400">
           Chart Placeholder
         </div>
       </div>
+      */}
 
       {/* Recent Activity */}
       <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow">

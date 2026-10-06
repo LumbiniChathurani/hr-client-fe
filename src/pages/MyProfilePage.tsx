@@ -38,11 +38,13 @@ const MyProfilePage = () => {
 
       {/* Profile Card */}
       <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow mb-8 flex items-center gap-6">
+        {/*
         <img
           src={getProperImageUrl(userState?.profile_image)}
           alt="Profile"
           className="w-24 h-24 rounded-full border-4 border-purple-500 object-cover"
         />
+        */}
         <div>
           <h2 className="text-2xl font-semibold">
             {userState?.userName ?? "User Name N/A"}

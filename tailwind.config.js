@@ -1,4 +1,8 @@
+
 /** @type {import('tailwindcss').Config} */
+
+import scrollbarHide from "tailwind-scrollbar-hide";
+
 export default {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -6,7 +10,7 @@ export default {
     extend: {
       colors: {
         "light-purple": "#F3E8FF",
-        "lilac-purple": "	#E9D5FF",
+        "lilac-purple": "#E9D5FF",
         "dark-purple": "#2E2235",
         "dark-purple-light": "#3C2F4B",
         "dark-purple-muted": "#4A3A57",
@@ -23,5 +27,8 @@ export default {
       },
     },
   },
-  plugins: [require("tailwind-scrollbar-hide")],
+  plugins: [scrollbarHide],
 };
+
+
+

@@ -8,8 +8,8 @@ interface PayrollData {
   base_salary: number;
   bonus: number;
   deductions: number;
-  hourly_rate: number;
-  pay_type: "monthly" | "hourly";
+  // hourly_rate: number;
+  // pay_type: "monthly" | "hourly";
   month_num: number;
   year_num: number;
 }
@@ -32,8 +32,8 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
     base_salary: "",
     bonus: "",
     deductions: "",
-    hourly_rate: 0,
-    pay_type: "monthly" as "monthly" | "hourly",
+    // hourly_rate: 0,
+    // pay_type: "monthly" as "monthly" | "hourly",
     month_num: payrollData?.month_num,
     year_num: payrollData?.year_num,
   });
@@ -45,16 +45,17 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
         base_salary,
         bonus,
         deductions,
-        hourly_rate,
-        pay_type,
+        // hourly_rate,
+        // pay_type,
       } = payrollData;
+
       setFormData({
         employee_id,
         base_salary: base_salary.toString(),
         bonus: bonus.toString(),
         deductions: deductions.toString(),
-        hourly_rate,
-        pay_type,
+        // hourly_rate,
+        // pay_type,
         month_num: payrollData.month_num,
         year_num: payrollData.year_num,
       });
@@ -67,7 +68,8 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "hourly_rate" ? parseFloat(value) || 0 : value,
+      // [name]: name === "hourly_rate" ? parseFloat(value) || 0 : value,
+      [name]: value,
     }));
   };
 
@@ -93,7 +95,6 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
         );
 
       onUpdate();
-
       onClose();
     } catch (err: any) {
       console.error("Error updating payroll:", err.message);
@@ -117,7 +118,7 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
         value={(formData[name] as any).toString()}
         onChange={handleChange}
         className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-400 text-gray-600"
-        required={["base_salary", "pay_type"].includes(name)}
+        required={["base_salary" /*, "pay_type"*/].includes(name)}
       />
     </div>
   );
@@ -142,6 +143,7 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
           {renderInput("Bonus", "bonus")}
           {renderInput("Deductions", "deductions")}
 
+          {/* 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Salary Type
@@ -157,9 +159,12 @@ const EditPayrollFormModal: React.FC<EditPayrollFormModalProps> = ({
               <option value="hourly">Hourly</option>
             </select>
           </div>
+          */}
 
+          {/* 
           {formData.pay_type === "hourly" &&
             renderInput("Hourly Rate", "hourly_rate")}
+          */}
 
           <div className="pt-6 flex justify-end">
             <button

@@ -1,6 +1,8 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { Search } from "lucide-react";
 import EditPayrollFormModal from "./EditPayroll";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Types
 type PayType = "monthly" | "hourly";
@@ -11,10 +13,10 @@ interface PayrollEntry {
   id: number;
   name: string;
   department: string;
-  payType: PayType;
+  //payType: PayType;
   baseSalary?: number;
-  hourly_rate?: number;
-  hoursWorked?: number;
+  //hourly_rate?: number;
+  //hoursWorked?: number;
   bonus?: number;
   deductions?: number;
   status: StatusType;
@@ -29,8 +31,8 @@ interface PayrollData {
   base_salary: number;
   bonus: number;
   deductions: number;
-  pay_type: PayType;
-  hourly_rate: number;
+  //pay_type: PayType;
+  //hourly_rate: number;
   month_num: number;
   year_num: number;
 }
@@ -39,12 +41,11 @@ const convertToPayrollData = (entry: PayrollEntry): PayrollData => ({
   id: entry.userId,
   userId: entry.userId,
   employee_id: entry.userId,
-  base_salary:
-    entry.baseSalary ?? (entry.hourly_rate ?? 0) * (entry.hoursWorked ?? 0),
+  base_salary: entry.baseSalary ?? 0,
   bonus: entry.bonus ?? 0,
   deductions: entry.deductions ?? 0,
-  pay_type: entry.payType,
-  hourly_rate: entry.hourly_rate ?? 0,
+  //pay_type: entry.payType,
+  //hourly_rate: entry.hourly_rate ?? 0,
   month_num: entry.month_num,
   year_num: entry.year_num,
 });
@@ -56,6 +57,38 @@ const PayrollPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState({});
   const [editing, setEditing] = useState<PayrollEntry | null>(null);
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Payroll Report - ${getMonthName(month)} ${year}`, 14, 15);
+
+    const tableColumn = [
+      "Name",
+      "Department",
+      "Base Salary",
+      "Bonus",
+      "Deductions",
+      "Net Pay",
+      "Status",
+    ];
+
+    const tableRows = payroll.map((e) => [
+      e.name,
+      e.department,
+      `Rs.${calcBase(e).toLocaleString()}`,
+      `Rs.${(e.bonus || 0).toLocaleString()}`,
+      `Rs.${(e.deductions || 0).toLocaleString()}`,
+      `Rs.${calcNetPay(e).toLocaleString()}`,
+      e.status,
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 25,
+    });
+
+    doc.save(`payroll-report-${month}-${year}.pdf`);
+  };
 
   useEffect(() => {
     console.log("Payroll changed: ", payroll);
@@ -78,10 +111,10 @@ const PayrollPage = () => {
             userId: item.userId,
             name: item.name,
             department: item.department,
-            payType: item.pay_type,
+            //payType: item.pay_type,
             baseSalary: item.base_salary,
-            hourly_rate: item.hourly_rate,
-            hoursWorked: item.hours_worked,
+            //hourly_rate: item.hourly_rate,
+            //hoursWorked: item.hours_worked,
             bonus: item.bonus,
             deductions: item.deductions,
             status: item.status,
@@ -99,13 +132,10 @@ const PayrollPage = () => {
     fetchPayroll();
   }, [refreshTrigger, month, year, setPayroll]);
 
-  const calcBase = (e: PayrollEntry) =>
-    e.payType === "hourly"
-      ? (e.hourly_rate || 0) * (e.hoursWorked || 0)
-      : e.baseSalary || 0;
+  const calcBase = (e: PayrollEntry) => e.baseSalary || 0;
 
   const calcNetPay = (e: PayrollEntry) =>
-    calcBase(e) + (e.bonus || 0) - (e.deductions || 0);
+    Number(calcBase(e)) + Number(e.bonus || 0) - Number(e.deductions || 0);
 
   const total = 0;
 
@@ -149,7 +179,7 @@ const PayrollPage = () => {
           className="px-4 py-2 rounded border bg-white border-gray-300 dark:bg-dark-purple-muted dark:text-white"
         >
           {Array.from({ length: 12 }, (_, i) => {
-            const monthIndex = i; // 0 to 11
+            const monthIndex = i;
             const monthName = new Date(0, monthIndex).toLocaleString(
               "default",
               { month: "long" }
@@ -161,6 +191,7 @@ const PayrollPage = () => {
             );
           })}
         </select>
+
         {/* set payroll year */}
         <div className="flex flex-row items-center gap-x-5">
           <h5>Year: </h5>
@@ -190,18 +221,13 @@ const PayrollPage = () => {
           <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
             🧾 Generate Payslips
           </button>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+          <button
+            onClick={handleExportPDF}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          >
             📤 Export Report
           </button>
         </div>
-      </div>
-
-      {/* Summary */}
-      <div className="bg-light-purple dark:bg-dark-purple-muted p-6 rounded-xl shadow text-center mb-6">
-        <h2 className="text-lg font-semibold">
-          Total Payroll for {getMonthName(month)}
-        </h2>
-        <p className="text-3xl font-bold mt-2">Rs.{total.toLocaleString()}</p>
       </div>
 
       {/* Table */}
@@ -212,8 +238,8 @@ const PayrollPage = () => {
               {[
                 "Name",
                 "Department",
-                "Pay Type",
-                "Base / Hours",
+                //"Pay Type",
+                "Base salary",
                 "Bonus",
                 "Deductions",
                 "Net Pay",
@@ -228,6 +254,7 @@ const PayrollPage = () => {
           </thead>
           <tbody>
             {payroll.map((e, index) => {
+              console.log("Net Pay for", e.name, ":", calcNetPay(e));
               return (
                 <tr
                   key={index}
@@ -235,9 +262,9 @@ const PayrollPage = () => {
                 >
                   <td className="py-3 px-4">{e.name}</td>
                   <td className="py-3 px-4">{e.department}</td>
-                  <td className="py-3 px-4 capitalize">{e.payType}</td>
+                  {/* <td className="py-3 px-4 capitalize">{e.payType}</td> */}
                   <td className="py-3 px-4">
-                    {e.payType === "hourly" ? (
+                    {/*e.payType === "hourly" ? (
                       <>
                         {e.hoursWorked} hrs × Rs.{e.hourly_rate}
                         <br />
@@ -245,7 +272,8 @@ const PayrollPage = () => {
                       </>
                     ) : (
                       <>Rs.{calcBase(e)}</>
-                    )}
+                    )*/}
+                    <>Rs.{calcBase(e)}</>
                   </td>
                   <td className="py-3 px-4">
                     Rs.{(e.bonus || 0).toLocaleString()}
@@ -256,6 +284,7 @@ const PayrollPage = () => {
                   <td className="py-3 px-4 font-semibold">
                     Rs.{calcNetPay(e).toLocaleString()}
                   </td>
+
                   <td className="py-3 px-4">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
@@ -276,12 +305,14 @@ const PayrollPage = () => {
                     >
                       Mark as Paid
                     </button>
+                    {/*
                     <button
                       disabled
                       className="text-gray-400 cursor-not-allowed"
                     >
                       View
                     </button>
+                    */}
                     <button
                       onClick={() => setEditing(e)}
                       className="text-blue-500 hover:underline"
@@ -315,4 +346,5 @@ const PayrollPage = () => {
 function getMonthName(monthNum: number): string {
   return new Date(0, monthNum - 1).toLocaleString("default", { month: "long" });
 }
+
 export default PayrollPage;

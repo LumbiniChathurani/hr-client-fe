@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+// Define the structure of an attendance entry
+type AttendanceEntry = {
+  date: string; // in YYYY-MM-DD format
+  status: "Present" | "Absent" | "Late";
+};
 
 const MyAttendance = () => {
-  const [attendanceData, setAttendanceData] = useState([
-    { date: "2025-05-01", status: "Present" },
-    { date: "2025-05-02", status: "Present" },
-    { date: "2025-05-03", status: "Absent" },
-    { date: "2025-05-04", status: "Late" },
-    { date: "2025-05-05", status: "Present" },
-  ]);
-
-  const today = "2025-05-06"; // Dummy today's date
+  const userId = 1; // Replace with actual user ID from auth
+  const today = new Date().toISOString().split("T")[0]; // e.g., "2025-05-06"
+  const [attendanceData, setAttendanceData] = useState<AttendanceEntry[]>([]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -24,19 +24,49 @@ const MyAttendance = () => {
     }
   };
 
-  const markAttendance = (status: string) => {
-    const alreadyMarked = attendanceData.find((entry) => entry.date === today);
-    if (!alreadyMarked) {
-      setAttendanceData([...attendanceData, { date: today, status }]);
-    } else {
-      alert("Attendance already marked for today.");
+  const fetchAttendance = async () => {
+    try {
+      const res = await fetch(`/api/attendance/${userId}`);
+      const rawData = await res.json();
+      const formattedData = rawData.map((entry: any) => ({
+        date: new Date(entry.date).toISOString().split("T")[0],
+        status: entry.status,
+      }));
+      setAttendanceData(formattedData);
+    } catch (error) {
+      console.error("Failed to fetch attendance:", error);
     }
   };
 
-  // Calculate summary for current month (2025-05)
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  const markAttendance = async (status: "Present" | "Absent" | "Late") => {
+    const alreadyMarked = attendanceData.find((entry) => entry.date === today);
+    if (alreadyMarked) return alert("Attendance already marked for today.");
+
+    try {
+      const res = await fetch("/api/attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, date: today, status }),
+      });
+
+      if (res.ok) {
+        setAttendanceData([...attendanceData, { date: today, status }]);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Something went wrong.");
+      }
+    } catch (error) {
+      alert("Network error. Please try again.");
+    }
+  };
+
   const summary = attendanceData.reduce(
     (acc, entry) => {
-      if (entry.date.startsWith("2025-05")) {
+      if (typeof entry.date === "string" && entry.date.startsWith("2025-05")) {
         if (entry.status === "Present") acc.present++;
         else if (entry.status === "Absent") acc.absent++;
         else if (entry.status === "Late") acc.late++;
@@ -59,28 +89,23 @@ const MyAttendance = () => {
           Mark Attendance for Today
         </h2>
         <div className="flex gap-4 flex-wrap">
-          <button
-            onClick={() => markAttendance("Present")}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          >
-            Present
-          </button>
-          <button
-            onClick={() => markAttendance("Absent")}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-          >
-            Absent
-          </button>
-          <button
-            onClick={() => markAttendance("Late")}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
-          >
-            Late
-          </button>
+          {["Present", "Absent", "Late"].map((status) => (
+            <button
+              key={status}
+              onClick={() =>
+                markAttendance(status as "Present" | "Absent" | "Late")
+              }
+              className={`${getStatusColor(
+                status
+              )} hover:brightness-90 text-white px-4 py-2 rounded`}
+            >
+              {status}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Attendance Summary */}
+      {/* Summary */}
       <div className="bg-white dark:bg-dark-purple-muted p-6 rounded-xl shadow mb-6">
         <h2 className="text-xl font-semibold mb-2">Summary for May 2025</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">

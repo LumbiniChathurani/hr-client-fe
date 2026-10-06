@@ -2,18 +2,11 @@ import { useTheme } from "../context/ThemeProvider";
 import { Sun, Moon, Search } from "lucide-react";
 import { MdNotificationsActive } from "react-icons/md";
 
-// ✅ Define the shape of user prop
-interface User {
-  profile_image: string;
-}
-
-const Topbar = ({ user }: { user: User }) => {
+const Topbar = () => {
   const { theme, toggleTheme } = useTheme();
 
-  // ✅ Safely normalize the profile image URL
-  const profileImageUrl = user?.profile_image?.startsWith("http")
-    ? user?.profile_image
-    : `http://localhost:3000${user?.profile_image}`;
+  // Use a common static profile image
+  const profileImageUrl = "/121.jpg"; // make sure this file exists in the public folder
 
   return (
     <header className="h-16 bg-light-purple dark:bg-dark-purple-muted shadow flex items-center justify-between px-6">
@@ -40,7 +33,7 @@ const Topbar = ({ user }: { user: User }) => {
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <img
-          src={`${profileImageUrl}?t=${Date.now()}`} // Bust cache with timestamp
+          src={profileImageUrl}
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover border-2 border-purple-400"
         />

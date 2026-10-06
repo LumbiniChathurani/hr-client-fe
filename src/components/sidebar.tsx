@@ -139,6 +139,7 @@ const Sidebar = () => {
               Reports & Analytics
             </div>
           </Link>
+          {/*
           <Link
             to="/user_management"
             className="hover:bg-lilac-purple dark:hover:bg-hover-purple p-2 rounded "
@@ -148,6 +149,8 @@ const Sidebar = () => {
               User & Role Management
             </div>
           </Link>
+          */}
+
           <br />
           <br />
           <br />

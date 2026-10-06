@@ -33,7 +33,7 @@ const AdminLayout = ({ user }: { user: User }) => {
     <div className="flex bg-gray-100 dark:bg-dark-purple text-black dark:text-white min-h-screen">
       <Sidebar />
       <div className="flex flex-col flex-1">
-        <Topbar user={user} /> {/* ✅ pass user here */}
+        <Topbar /> {/* ✅ pass user here */}
         <main className="p-6 flex-1">
           <Outlet />
         </main>

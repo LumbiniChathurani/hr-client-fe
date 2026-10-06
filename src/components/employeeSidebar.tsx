@@ -105,7 +105,8 @@ const EmployeeSidebar = () => {
               My Profile
             </div>
           </Link>
-          <Link
+          {/* 
+         <Link
             to="/employee/attendance"
             onClick={() => setIsOpen(false)}
             className="hover:bg-lilac-purple dark:hover:bg-hover-purple p-2 rounded"
@@ -115,8 +116,10 @@ const EmployeeSidebar = () => {
               Attendance
             </div>
           </Link>
+         */}
 
-          <Link
+          {/* 
+         <Link
             to="/employee/payroll"
             onClick={() => setIsOpen(false)}
             className="hover:bg-lilac-purple dark:hover:bg-hover-purple p-2 rounded"
@@ -127,6 +130,7 @@ const EmployeeSidebar = () => {
             </div>
           </Link>
 
+         */}
           <Link
             to="/employee/leave"
             onClick={() => setIsOpen(false)}

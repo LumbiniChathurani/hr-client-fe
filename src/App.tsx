@@ -18,14 +18,14 @@ function App() {
     "Careers"
   );
   const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
 
   const tabs: Record<"Careers" | "Teams" | "Culture", string> = {
     Careers: "Explore exciting roles and join our mission.",
     Teams: "Meet the people behind StriveWorks.",
     Culture: "Discover our values and work environment.",
   };
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -56,12 +56,6 @@ function App() {
           >
             Login
           </Link>
-          <Link
-            to="/dashboard"
-            className="font-semibold hover:bg-lilac-purple dark:hover:bg-hover-purple p-2 rounded"
-          >
-            Admin Dashboard
-          </Link>
           <button
             onClick={toggleTheme}
             className="p-2 rounded hover:bg-lilac-purple dark:hover:bg-hover-purple"
@@ -77,14 +71,12 @@ function App() {
         <p className="text-lg mb-8 max-w-xl z-10">
           Innovating productivity and collaboration — powered by great people.
         </p>
-        {/* Hero Image */}
         <div className="relative w-full max-w-4xl">
           <img
             src="src/assets/dark-purple-aesthetic-pictures-c2zhuj401xbqvh6h.jpg"
             alt="Hero"
             className="rounded-xl shadow-xl w-full h-72 object-cover"
           />
-          {/* Tabs inside image */}
           <div className="absolute inset-0 bg-black bg-opacity-40 rounded-xl flex flex-col justify-end p-4 text-left">
             <div className="flex gap-4 mb-2">
               {Object.keys(tabs).map((tab) => (
@@ -107,6 +99,27 @@ function App() {
               {tabs[activeTab]}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* About StriveWorks */}
+      <section className="py-16 px-6 bg-white dark:bg-dark-purple-muted text-black dark:text-white text-center">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-3xl md:text-4xl font-bold mb-6 text-purple-700 dark:text-purple-300">
+            About StriveWorks
+          </h3>
+          <p className="text-lg leading-relaxed text-gray-700 dark:text-slate-300">
+            At{" "}
+            <span className="font-semibold text-purple-700 dark:text-purple-400">
+              StriveWorks
+            </span>
+            , we build powerful software that helps businesses thrive in the
+            digital age. From intelligent HR tools to innovative productivity
+            solutions, our mission is to create intuitive, scalable, and
+            human-centric platforms that empower organizations and their people.
+            Join us in shaping the future of work through technology,
+            creativity, and collaboration.
+          </p>
         </div>
       </section>
 
@@ -146,6 +159,7 @@ function App() {
           ))}
         </div>
       </section>
+
       {selectedJob && (
         <JobApplicationModal
           isOpen={isModalOpen}
